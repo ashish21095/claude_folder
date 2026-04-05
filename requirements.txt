@@ -1,0 +1,4 @@
+requests
+groq
+supabase
+apify-client
