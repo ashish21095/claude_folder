@@ -45,10 +45,10 @@ def _job_hash(title: str, company: str, url: str) -> str:
 
 
 def _should_exclude(job: dict) -> bool:
-    """Filter out irrelevant jobs."""
-    text = f"{job.get('title','')} {job.get('description','')}".lower()
+    """Filter out irrelevant jobs based on title only (not description, to avoid false positives)."""
+    title = job.get("title", "").lower()
     company = job.get("company", "").lower()
-    if any(kw.lower() in text for kw in EXCLUDE_KEYWORDS):
+    if any(kw.lower() in title for kw in EXCLUDE_KEYWORDS):
         return True
     if any(c.lower() in company for c in EXCLUDE_COMPANIES):
         return True

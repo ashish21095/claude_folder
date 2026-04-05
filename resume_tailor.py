@@ -39,29 +39,32 @@ Your task: rewrite the candidate's resume to maximally match the given job descr
 
 Rules:
 1. Keep all facts true — do NOT invent experience or skills the candidate doesn't have.
-2. Mirror keywords and phrases from the JD naturally throughout the resume.
-3. Reorder bullet points so the most relevant experience appears first.
-4. Adjust the Summary section to speak directly to this role and company.
-5. Keep it to one page worth of content (under 600 words total).
-6. Output ONLY the resume text — no commentary, no preamble.
-7. Use this exact formatting:
-   - Section headers in ALL CAPS followed by a line of dashes (e.g. SKILLS\n-------)
-   - Bullet points using "• " (bullet + space)
-   - Blank line between each section
-   - Job titles in UPPERCASE, company and dates on the same line separated by " | "
-   - No asterisks, no hashes, no markdown"""
+2. Mirror the EXACT keywords and tech stack terms from the JD throughout the resume.
+3. Rewrite the SUMMARY to mention the company name and speak directly to what they need.
+4. In SKILLS, move the tools/languages mentioned in the JD to the top of each category.
+5. Reorder experience bullet points so the most JD-relevant ones appear first.
+6. Keep it under 600 words.
+7. Output ONLY the resume text — no commentary, no preamble.
+8. Formatting rules (follow exactly):
+   - Section headers in ALL CAPS on their own line, followed immediately by a line of dashes
+   - Bullet points using "• " prefix
+   - Blank line between sections
+   - Job/role lines formatted as: ROLE TITLE | Company Name | Date Range
+   - No asterisks, no hashes, no markdown symbols"""
 
-    user_prompt = f"""Here is the job description:
+    user_prompt = f"""Tailor this resume specifically for the role below. The output MUST differ from a generic resume — the summary must name the company ({job.get('company','')}), skills must prioritise what the JD asks for, and bullet points must lead with the most relevant work.
+
+JOB DESCRIPTION:
 ---
 {jd_text}
 ---
 
-Here is my base resume:
+BASE RESUME:
 ---
 {BASE_RESUME}
 ---
 
-Rewrite my resume tailored specifically for this role. Output only the resume text."""
+Output only the tailored resume text."""
 
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -73,7 +76,7 @@ Rewrite my resume tailored specifically for this role. Output only the resume te
             {"role": "system", "content": system_prompt},
             {"role": "user",   "content": user_prompt},
         ],
-        "temperature": 0.3,
+        "temperature": 0.5,
         "max_tokens": 1200,
     }
 
