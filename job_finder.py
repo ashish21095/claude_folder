@@ -18,11 +18,13 @@ logger = logging.getLogger(__name__)
 _apify_client = ApifyClient(APIFY_API_TOKEN)
 
 
+MAX_ITEMS_PER_KEYWORD = 15
+
 def _apify_run_and_wait(actor_id: str, run_input: dict) -> list:
     """Start an Apify actor run and wait for results."""
     logger.info(f"Starting Apify actor: {actor_id}")
     run = _apify_client.actor(actor_id).call(run_input=run_input, timeout_secs=120)
-    items = list(_apify_client.dataset(run["defaultDatasetId"]).iterate_items())
+    items = list(_apify_client.dataset(run["defaultDatasetId"]).iterate_items(limit=MAX_ITEMS_PER_KEYWORD))
     logger.info(f"Apify actor {actor_id} returned {len(items)} items")
     return items
 
