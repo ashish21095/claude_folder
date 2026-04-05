@@ -62,13 +62,9 @@ def scrape_linkedin() -> list[dict]:
     for keyword in JOB_SEARCH_KEYWORDS[:1]:  # TEST: 1 keyword only
         try:
             run_input = {
-                "keyword": keyword,
-                "keywords": keyword,
-                "searchKeywords": keyword,
-                "query": keyword,
-                "title": keyword,
-                "location": JOB_LOCATIONS[0],
-                "maxResults": 15,
+                "Job Title": keyword,
+                "Location": JOB_LOCATIONS[0],
+                "Number of Jobs Entries": 10,
             }
             items = _apify_run_and_wait("worldunboxer~rapid-linkedin-scraper", run_input)
             for item in items:
