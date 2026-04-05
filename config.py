@@ -35,51 +35,64 @@ MAX_EXPERIENCE_YEARS = 10
 EXCLUDE_COMPANIES    = []     # e.g. ["TCS", "Infosys"] if you want to skip them
 EXCLUDE_KEYWORDS     = ["fresher", "0-2 years", "intern"]
 
-# ── Your Base Resume (plain text — paste yours here) ──
+# ── Your Base Resume ──
 BASE_RESUME = """
+HEADER
 Ashish Pillai
-Senior Data Engineer | Pune, India
-LinkedIn: linkedin.com/in/ashishpillai | GitHub: github.com/ashishpillai
+Senior Data Engineer · 6+ Years
++91 9176060830 | ashishkumarpillai21095@gmail.com | linkedin.com/in/ashishpillai210 | Pune, India
+CERTIFICATIONS_BADGES: SnowPro Core — Snowflake | Data Engineer Associate — Databricks | Data Analytics Specialty — AWS
 
-SUMMARY
-Senior Data Engineer with 6.5+ years building large-scale data pipelines, real-time streaming
-systems, and cloud-native data platforms. Databricks Certified Associate Developer (Apache Spark).
-Core expertise in PySpark, Spark, Delta Lake, Kafka, Airflow, and AWS. Actively exploring GenAI
-infrastructure — RAG pipelines, vector databases, and LLM observability.
+PROFESSIONAL SUMMARY
+Senior Data Engineer with 6+ years architecting cloud-native ELT/ETL pipelines, real-time streaming systems, and lakehouse platforms at enterprise scale. Proven ability to deliver measurable outcomes — cost reduction, latency improvements, and data quality uplift — across AWS, Snowflake, and Databricks ecosystems. Deep expertise in Apache Airflow, dbt, PySpark, and Apache Kafka. Practitioner of DataOps, data observability, and data governance. Triple-certified: SnowPro Core, Databricks Data Engineer Associate, and AWS Data Analytics Specialty.
+Core stack: Python · SQL · PySpark · Apache Spark · Apache Kafka · Apache Airflow · dbt · Snowflake · AWS Redshift · Databricks · Delta Lake · Data Lakehouse · Stream Processing · Batch ETL · CI/CD · Docker
 
-SKILLS
-Languages:     Python, SQL, Scala (basic)
-Frameworks:    PySpark, Apache Spark, Apache Kafka, Apache Airflow
-Platforms:     Databricks, Delta Lake, AWS (S3, Glue, EMR, Lambda), Azure (basic)
-Databases:     PostgreSQL, MySQL, MongoDB, Pinecone (vector DB)
-Tools:         Git, Docker, dbt, Great Expectations, Jenkins
-GenAI:         LangChain, Groq API, RAG pipelines, prompt engineering
+WORK EXPERIENCE
+DATA ENGINEER | Workday | Jan 2023 – Present | Pune, India
+• Architected 30+ modular ELT pipelines using Python, SQL, dbt, and Apache Airflow on Snowflake, processing 500 GB+ of structured and semi-structured data daily across 10+ upstream sources.
+• Reduced Snowflake compute spend by 35% through warehouse right-sizing, query profiling, clustering key optimization, and materialized view strategies on high-volume analytical tables.
+• Built a dbt project with 120+ models, automated tests, and lineage documentation — enabling self-service analytics for 5 cross-functional teams and reducing ad-hoc SQL requests by 50%.
+• Migrated legacy batch ETL processes to a real-time-capable ELT architecture on Snowflake, cutting end-to-end data latency from 4 hours to under 30 minutes and improving pipeline SLA compliance by 40%.
+• Implemented data observability using dbt tests and custom anomaly detection, achieving a 99.9% data quality SLA and catching schema drift and null-rate anomalies before reaching downstream consumers.
+• Enforced data governance via RBAC, column-level security, audit logging, and data lineage tracking — ensuring compliance with internal data contracts and access policies across 15+ datasets.
+• Designed dimensional models and Data Vault 2.0 patterns for core business domains, including Slowly Changing Dimensions (SCD Type 2), improving analytical query performance by 25%.
+• Built AWS Lambda-based ingestion connectors for third-party REST APIs, reducing time-to-data for new sources from 2 weeks to 2 days; used AWS S3 as staging layer with Snowpipe for continuous loading.
+• Integrated CI/CD pipelines for data infrastructure using GitHub Actions — enabling automated dbt test runs, linting, and zero-downtime deployments across dev, staging, and production environments.
 
-EXPERIENCE
-Workday — Senior Data Engineer         present
-- Designed and maintained PySpark batch pipelines processing 50M+ records/day on Databricks
-- Built real-time Kafka consumer pipelines with exactly-once semantics and Delta Lake sinks
-- Reduced pipeline latency by 40% via partition tuning and broadcast join optimisations
-- Implemented data quality checks using Great Expectations integrated into CI/CD
-- Mentored 3 junior engineers; established data engineering best practices across the team
+SENIOR DATA ENGINEER | Larsen & Toubro Infotech (LTI) | Jul 2021 – Dec 2022 | Pune, India
+• Led Oracle-to-Redshift migration using Amazon Athena, AWS Glue, and S3 as a data lake staging layer — delivering $200K+ in annual infrastructure savings and a 15% improvement in analytical query performance.
+• Built a PySpark-based batch ETL framework on Databricks processing 1 TB+ daily across Hive and HDFS, reducing pipeline failure rate from 12% to under 1% through robust exception handling and alerting.
+• Optimized Apache Spark job execution through partition tuning, broadcast joins, and dynamic resource allocation — reducing average job runtime by 30% and cluster costs by $8K/month.
+• Designed Hive table schemas with static and dynamic partitioning strategies for 20+ datasets in Parquet and ORC formats, improving ad-hoc query speed by 40% on petabyte-scale data.
+• Developed Python and Unix Shell automation scripts eliminating 15+ hours/week of manual pipeline operations, including ingestion monitoring, file format validation, and retry orchestration.
+• Worked cross-functionally with data scientists to surface clean, reliable feature datasets — supporting ML model training workflows and reducing data preparation time by 35%.
 
-LTI — Data Engineer                 2021 - 2023
-- Developed ETL workflows on Apache Airflow orchestrating 20+ DAGs across AWS S3 and Redshift
-- Migrated on-prem Hadoop workloads to AWS EMR, cutting infrastructure cost by 35%
-- Built monitoring dashboards and alerting for data pipeline SLA compliance
+DATA ENGINEER | Tata Consultancy Services (TCS) | Jul 2018 – Jun 2021 | Chennai, India
+• Designed and implemented 15+ production-grade ETL pipelines in Apache Airflow serving client-facing reporting dashboards used by 10,000+ daily active users across 3 business units.
+• Led Netezza-to-Snowflake cloud migration delivering $150K+ in annual cost savings and a 22% boost in analytical query performance; applied star schema and snowflake schema modeling patterns.
+• Automated Airflow DAG generation and job scheduling using Python templating, reducing manual pipeline creation effort by 80% (~20 hours/week) and standardizing workflow deployment across teams.
+• Ingested data from 10+ heterogeneous sources — SQL databases, Azure Data Lake, Snowflake, REST APIs, and flat files — into a unified data warehouse using Python and PySpark.
+• Implemented automated data quality checks and cleansing workflows in Python, improving data accuracy from 87% to 98% and reducing downstream reporting errors by 60%.
+• Containerized pipeline services using Docker, ensuring environment parity between local dev and production and reducing environment-related incidents by 60%.
 
-PROJECTS
-Multi-Agent Job Hunting System (2026)
-- Built autonomous job scraping + resume tailoring system using Apify, Groq, Supabase, GitHub Actions
-- Telegram bot interface delivers tailored resume + job card for each matched role
-
-GenAI RAG Pipeline (2025)
-- End-to-end RAG system over internal docs: LangChain + Pinecone + Groq API
-- Chunking, embedding, retrieval, and response evaluation pipeline
+TECHNICAL SKILLS
+Languages | Python (advanced), SQL, PySpark, Unix Shell Scripting, Scala (familiar), JavaScript
+Streaming | Apache Kafka, Spark Streaming, AWS Kinesis, Stream Processing, Real-Time Pipelines
+Orchestration | Apache Airflow, dbt (Core & Cloud), Databricks Workflows, Prefect (familiar)
+Cloud & DW | AWS (Redshift, S3, Lambda, Athena, Glue, Kinesis), Snowflake, Databricks, Azure Data Lake
+Lakehouse | Delta Lake, Apache Iceberg (familiar), Apache Hudi (familiar), Data Lakehouse Architecture
+Big Data | Apache Spark, PySpark, Hive, Hadoop, HDFS — batch and distributed processing
+Modeling | Dimensional Modeling, Data Vault 2.0, Star/Snowflake Schema, SCD Type 1/2, Data Mesh
+DataOps | CI/CD (GitHub Actions), Docker, Kubernetes (familiar), Terraform (familiar), Git, dbt tests
+Governance | Data Observability, Data Lineage, Data Contracts, RBAC, Audit Logging, Great Expectations
+Databases | Snowflake, Redshift, Databricks, Oracle, Netezza, MySQL, PostgreSQL
+BI & Tools | Tableau, FiveTran, RudderStack, Prophecy, Soda (data quality)
 
 CERTIFICATIONS
-- Databricks Certified Associate Developer for Apache Spark (2023)
+SnowPro Core Certification — Snowflake
+Databricks Certified Data Engineer Associate — Databricks
+AWS Certified Data Analytics – Specialty — Amazon Web Services
 
 EDUCATION
-Bachelor of Engineering, Computer Science — [University], Pune (2018)
+B.Tech – Electronics & Communication Engineering | SRM Institute of Science and Technology, Chennai | 2014 – 2018
 """

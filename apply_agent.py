@@ -37,7 +37,7 @@ def is_job_seen(job_id: str) -> bool:
     return len(resp.json()) > 0
 
 
-def save_job(job: dict, resume_text: str, fit_score: int) -> bool:
+def save_job(job: dict, resume_edits: dict, fit_score: int) -> bool:
     """Insert job into Supabase jobs table."""
     payload = {
         "job_id":      job["job_id"],
@@ -60,10 +60,11 @@ def save_job(job: dict, resume_text: str, fit_score: int) -> bool:
         logger.error(f"Supabase insert failed: {resp.status_code} {resp.text}")
         return False
 
-    # Save tailored resume version
+    # Save tailored resume version (store edits as JSON text)
+    import json as _json
     resume_payload = {
         "job_id":      job["job_id"],
-        "resume_text": resume_text,
+        "resume_text": _json.dumps(resume_edits),
     }
     requests.post(
         f"{SUPABASE_URL}/rest/v1/resume_versions",
@@ -112,14 +113,13 @@ def send_job_notification(job: dict, tailored_resume: str, fit_score: int):
     _send_message(card, parse_mode="HTML")
 
     # ── Message 2: Tailored resume as PDF ──
+    # tailored_resume is a dict of edits from Groq; pdf_builder merges it with BASE_RESUME
     try:
         pdf_bytes = build_resume_pdf(tailored_resume)
         filename = f"Resume_{_safe_filename(job['company'])}_{_safe_filename(job['title'])}.pdf"
         _send_document(pdf_bytes, filename, "application/pdf", caption="📄 Tailored resume — ATS optimised")
     except Exception as e:
-        logger.error(f"PDF generation failed, sending plain text fallback: {e}")
-        filename = f"Resume_{_safe_filename(job['company'])}_{_safe_filename(job['title'])}.txt"
-        _send_document(tailored_resume.encode("utf-8"), filename, "text/plain", caption="📄 Tailored resume for this role")
+        logger.error(f"PDF generation failed: {e}")
 
 
 def _h(text: str) -> str:

@@ -8,7 +8,7 @@ Two-step Groq pipeline:
 import json
 import logging
 import requests
-from config import GROQ_API_KEY, GROQ_MODEL, BASE_RESUME
+from config import GROQ_API_KEY, GROQ_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -69,84 +69,80 @@ Return ONLY valid JSON. No explanation."""
 
 # ── Step 2: Resume tailoring ──────────────────────────────────────────────────
 
-def tailor_resume(job: dict) -> str:
+def tailor_resume(job: dict) -> dict:
     """
-    Two-step pipeline: analyse JD → tailor resume using the analysis.
-    Falls back to BASE_RESUME if both steps fail.
+    Two-step pipeline: analyse JD → return targeted edits as a dict:
+      {
+        "summary": "updated summary text",
+        "workday_bullets": ["• new bullet 1", "• new bullet 2"],
+        "skills_updates": {"Category": "updated skills string", ...}
+      }
+    Falls back to empty dict on failure (PDF builder uses base resume as-is).
     """
     desc = job.get("description", "")
     logger.info(f"JD description length for {job.get('title')} @ {job.get('company')}: {len(desc)} chars")
     if len(desc) < 100:
         logger.warning(f"Short/empty JD — resume may not be well tailored")
 
-    # Step 1
+    # Step 1: analyse JD
     analysis = _analyse_jd(job)
 
-    # Build the tailoring instructions from the analysis
     if analysis:
-        required   = ", ".join(analysis.get("required_skills", []))
-        nice       = ", ".join(analysis.get("nice_to_have", []))
-        keywords   = ", ".join(analysis.get("keywords", []))
-        duties     = "\n".join(f"  - {r}" for r in analysis.get("responsibilities", []))
-        seniority  = analysis.get("seniority", "")
-        focus      = analysis.get("company_focus", "")
-
-        tailoring_brief = f"""
-WHAT THIS ROLE NEEDS (extracted from JD):
-• Required skills: {required}
-• Nice to have: {nice}
-• ATS keywords to use: {keywords}
-• Core responsibilities:
-{duties}
-• Seniority signal: {seniority}
-• Company focus: {focus}
-
-INSTRUCTIONS:
-1. Rewrite the SUMMARY (3-4 sentences) to mention {job.get('company','')} by name, reference their focus ("{focus}"), and highlight the candidate's most relevant strengths for this specific role.
-2. In SKILLS, list the required skills first within each category. Include all ATS keywords naturally.
-3. Reorder experience bullet points — most JD-relevant achievements first.
-4. Every bullet point must use at least one keyword from the ATS keywords list above.
-5. Keep all facts true — do NOT invent skills or experience.
-"""
+        required  = ", ".join(analysis.get("required_skills", []))
+        nice      = ", ".join(analysis.get("nice_to_have", []))
+        keywords  = ", ".join(analysis.get("keywords", []))
+        focus     = analysis.get("company_focus", "")
+        seniority = analysis.get("seniority", "")
     else:
-        tailoring_brief = f"""
-Mirror keywords from this JD in the resume. Rewrite the summary to mention {job.get('company','')}
-and their needs. Prioritise relevant bullet points.
-JD: {desc[:1500]}
-"""
+        required = nice = keywords = focus = seniority = ""
 
-    system_prompt = """You are a senior technical resume writer. You write ATS-optimised resumes for Data Engineering roles.
-Output ONLY the resume text using this exact format:
-- Name and contact on the first 2 lines (centred style)
-- Section headers in ALL CAPS on their own line
-- Dashes line (-------) immediately after each section header
-- Blank line between sections
-- Bullet points using "• " prefix
-- Role lines formatted as: ROLE TITLE | Company | Date Range
-- No asterisks, no hashes, no markdown"""
+    prompt = f"""You are tailoring a resume for: {job.get('title')} at {job.get('company')}.
 
-    user_prompt = f"""{tailoring_brief}
+JD ANALYSIS:
+- Required skills: {required}
+- Nice to have: {nice}
+- ATS keywords: {keywords}
+- Company focus: {focus}
+- Seniority: {seniority}
 
-BASE RESUME:
----
-{BASE_RESUME}
----
+CURRENT TECHNICAL SKILLS (pipe-separated category | skills):
+Languages | Python (advanced), SQL, PySpark, Unix Shell Scripting, Scala (familiar), JavaScript
+Streaming | Apache Kafka, Spark Streaming, AWS Kinesis, Stream Processing, Real-Time Pipelines
+Orchestration | Apache Airflow, dbt (Core & Cloud), Databricks Workflows, Prefect (familiar)
+Cloud & DW | AWS (Redshift, S3, Lambda, Athena, Glue, Kinesis), Snowflake, Databricks, Azure Data Lake
+Lakehouse | Delta Lake, Apache Iceberg (familiar), Apache Hudi (familiar), Data Lakehouse Architecture
+Big Data | Apache Spark, PySpark, Hive, Hadoop, HDFS — batch and distributed processing
+Modeling | Dimensional Modeling, Data Vault 2.0, Star/Snowflake Schema, SCD Type 1/2, Data Mesh
+DataOps | CI/CD (GitHub Actions), Docker, Kubernetes (familiar), Terraform (familiar), Git, dbt tests
+Governance | Data Observability, Data Lineage, Data Contracts, RBAC, Audit Logging, Great Expectations
+Databases | Snowflake, Redshift, Databricks, Oracle, Netezza, MySQL, PostgreSQL
+BI & Tools | Tableau, FiveTran, RudderStack, Prophecy, Soda (data quality)
 
-Write the tailored resume now. Output only the resume text, nothing else."""
+Return a JSON object with exactly these keys:
+
+1. "summary": A 3-4 sentence professional summary that mentions {job.get('company','')} by name, references their focus, and highlights the candidate's most relevant strengths. Start with "Senior Data Engineer with 6+ years...".
+
+2. "workday_bullets": A list of 2-3 NEW bullet point strings (starting with "• ") for the Workday role that directly address the JD requirements using exact JD keywords. These are ADDITIONAL bullets — do not repeat existing ones. Each must show measurable impact.
+
+3. "skills_updates": A dict where keys are skill category names and values are the updated full skills string for that category. ONLY include categories that need new skills added from the JD. Preserve all existing skills and append new ones.
+
+Return ONLY valid JSON, no explanation."""
 
     try:
-        tailored = _groq(
-            [{"role": "system", "content": system_prompt},
-             {"role": "user",   "content": user_prompt}],
+        raw = _groq(
+            [{"role": "user", "content": prompt}],
             temperature=0.4,
-            max_tokens=1400,
+            max_tokens=1000,
         )
-        logger.info(f"Resume tailored for: {job['title']} @ {job['company']} "
-                    f"({len(tailored.split())} words)")
-        return tailored
+        raw = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+        edits = json.loads(raw)
+        logger.info(f"Resume edits for {job['title']} @ {job['company']}: "
+                    f"{len(edits.get('workday_bullets', []))} new bullets, "
+                    f"{len(edits.get('skills_updates', {}))} skill categories updated")
+        return edits
     except Exception as e:
         logger.error(f"Groq resume tailor failed: {e}")
-        return BASE_RESUME
+        return {}
 
 
 # ── Fit scoring ───────────────────────────────────────────────────────────────
