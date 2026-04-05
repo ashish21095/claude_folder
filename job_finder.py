@@ -32,6 +32,9 @@ def _apify_run_and_wait(actor_id: str, run_input: dict) -> list:
     run_info = _apify_client.run(run["id"]).get()
     items = list(_apify_client.dataset(run_info["defaultDatasetId"]).iterate_items(limit=MAX_ITEMS_PER_KEYWORD))
     logger.info(f"Apify actor {actor_id} returned {len(items)} items")
+    if items:
+        logger.info(f"Sample item keys: {list(items[0].keys())}")
+        logger.info(f"Sample item: {items[0]}")
     return items
 
 
