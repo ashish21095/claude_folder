@@ -23,7 +23,7 @@ logging.basicConfig(
 logger = logging.getLogger("orchestrator")
 
 # ── Config ────────────────────────────────────────────────────────────────────
-MIN_FIT_SCORE    = 55    # skip jobs below this score (0-100)
+MIN_FIT_SCORE    = 30    # temporarily lowered for testing (raise to 55 once working)
 MAX_JOBS_PER_RUN = 10    # cap notifications per run to avoid Telegram spam
 DELAY_BETWEEN    = 3     # seconds between processing jobs (rate limit courtesy)
 

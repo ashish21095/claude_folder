@@ -15,6 +15,10 @@ from config import (
 
 logger = logging.getLogger(__name__)
 
+# Suppress verbose Apify actor streaming logs
+logging.getLogger("apify").setLevel(logging.WARNING)
+logging.getLogger("apify_client").setLevel(logging.WARNING)
+
 _apify_client = ApifyClient(APIFY_API_TOKEN)
 
 
