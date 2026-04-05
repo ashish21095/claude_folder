@@ -22,7 +22,7 @@ logging.getLogger("apify_client").setLevel(logging.WARNING)
 _apify_client = ApifyClient(APIFY_API_TOKEN)
 
 
-MAX_ITEMS_PER_KEYWORD = 15
+MAX_ITEMS_PER_KEYWORD = 10
 
 def _apify_run_and_wait(actor_id: str, run_input: dict) -> list:
     """Start an Apify actor run and wait for results."""
@@ -54,7 +54,7 @@ def _should_exclude(job: dict) -> bool:
 
 def scrape_linkedin() -> list[dict]:
     jobs = []
-    for keyword in JOB_SEARCH_KEYWORDS[:3]:  # limit to avoid Apify free quota drain
+    for keyword in JOB_SEARCH_KEYWORDS[:1]:  # TEST: 1 keyword only
         try:
             run_input = {
                 "keyword": keyword,
