@@ -21,7 +21,7 @@ JOB_LOCATIONS = ["Pune", "India"]  # add "Remote" if you want remote roles
 # ── Apify Actor IDs ──
 # These are public actors available on the Apify store
 APIFY_ACTORS = {
-    "linkedin": "apify~linkedin-jobs-scraper",
+    "linkedin": "worldunboxer~rapid-linkedin-scraper",
     "naukri":   "apify/naukri-scraper",          # fallback: web scrape if actor unavailable
     "instahyre": None,                             # will use direct HTTP scrape
 }
