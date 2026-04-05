@@ -62,22 +62,21 @@ def scrape_linkedin() -> list[dict]:
     for keyword in JOB_SEARCH_KEYWORDS[:1]:  # TEST: 1 keyword only
         try:
             run_input = {
-                "Job Title": keyword,
-                "Location": JOB_LOCATIONS[0],
-                "Number of Jobs Entries": 10,
+                "queries": [f"{keyword} {JOB_LOCATIONS[0]}"],
+                "resultsPerPage": 10,
+                "proxy": {"useApifyProxy": True},
             }
-            items = _apify_run_and_wait("worldunboxer~rapid-linkedin-scraper", run_input)
+            items = _apify_run_and_wait("curious_coder~linkedin-jobs-scraper", run_input)
             for item in items:
-                title = item.get("job_title", "")
                 jobs.append({
-                    "title":       title,
-                    "company":     item.get("company_name", ""),
+                    "title":       item.get("title", "") or item.get("job_title", ""),
+                    "company":     item.get("companyName", "") or item.get("company_name", ""),
                     "location":    item.get("location", ""),
-                    "url":         item.get("job_url", ""),
-                    "description": item.get("job_description", ""),
-                    "experience":  item.get("seniority_level", ""),
-                    "salary":      item.get("salary_range", ""),
-                    "posted_at":   item.get("time_posted", ""),
+                    "url":         item.get("jobUrl", "") or item.get("job_url", ""),
+                    "description": item.get("description", "") or item.get("job_description", ""),
+                    "experience":  item.get("experienceLevel", "") or item.get("seniority_level", ""),
+                    "salary":      item.get("salary", "") or item.get("salary_range", ""),
+                    "posted_at":   item.get("postedAt", "") or item.get("time_posted", ""),
                     "source":      "linkedin",
                 })
             logger.info(f"LinkedIn: {len(items)} jobs for '{keyword}'")
