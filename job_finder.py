@@ -5,9 +5,9 @@ Returns a normalised list of job dicts.
 """
 
 import hashlib
-import time
 import requests
 import logging
+from apify_client import ApifyClient
 from config import (
     APIFY_API_TOKEN, JOB_SEARCH_KEYWORDS, JOB_LOCATIONS,
     EXCLUDE_KEYWORDS, EXCLUDE_COMPANIES
@@ -15,42 +15,16 @@ from config import (
 
 logger = logging.getLogger(__name__)
 
-APIFY_BASE = "https://api.apify.com/v2"
+_apify_client = ApifyClient(APIFY_API_TOKEN)
 
 
-def _apify_run_and_wait(actor_id: str, run_input: dict, timeout: int = 120) -> list:
+def _apify_run_and_wait(actor_id: str, run_input: dict) -> list:
     """Start an Apify actor run and wait for results."""
-    url = f"{APIFY_BASE}/acts/{actor_id}/runs"
-    headers = {"Authorization": f"Bearer {APIFY_API_TOKEN}"}
-
-    # Start the run
-    resp = requests.post(url, json=run_input, headers=headers, timeout=30)
-    resp.raise_for_status()
-    run_id = resp.json()["data"]["id"]
-    logger.info(f"Apify run started: {run_id} for actor {actor_id}")
-
-    # Poll until finished
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        status_resp = requests.get(
-            f"{APIFY_BASE}/actor-runs/{run_id}", headers=headers, timeout=15
-        )
-        status = status_resp.json()["data"]["status"]
-        if status == "SUCCEEDED":
-            break
-        elif status in ("FAILED", "ABORTED", "TIMED-OUT"):
-            raise RuntimeError(f"Apify run {run_id} ended with status: {status}")
-        time.sleep(8)
-    else:
-        raise TimeoutError(f"Apify run {run_id} did not finish in {timeout}s")
-
-    # Fetch dataset items
-    dataset_id = status_resp.json()["data"]["defaultDatasetId"]
-    items_resp = requests.get(
-        f"{APIFY_BASE}/datasets/{dataset_id}/items?format=json&limit=50",
-        headers=headers, timeout=30
-    )
-    return items_resp.json()
+    logger.info(f"Starting Apify actor: {actor_id}")
+    run = _apify_client.actor(actor_id).call(run_input=run_input, timeout_secs=120)
+    items = list(_apify_client.dataset(run["defaultDatasetId"]).iterate_items())
+    logger.info(f"Apify actor {actor_id} returned {len(items)} items")
+    return items
 
 
 def _job_hash(title: str, company: str, url: str) -> str:
@@ -81,7 +55,7 @@ def scrape_linkedin() -> list[dict]:
                 "resultsPerPage": 10,
                 "proxy": {"useApifyProxy": True},
             }
-            items = _apify_run_and_wait("bebity/linkedin-jobs-scraper", run_input)
+            items = _apify_run_and_wait("bebity~linkedin-jobs-scraper", run_input)
             for item in items:
                 jobs.append({
                     "title":       item.get("title", ""),
