@@ -61,8 +61,9 @@ def scrape_linkedin() -> list[dict]:
     jobs = []
     for keyword in JOB_SEARCH_KEYWORDS[:1]:  # TEST: 1 keyword only
         try:
+            encoded = requests.utils.quote(f"{keyword} {JOB_LOCATIONS[0]}")
             run_input = {
-                "queries": [f"{keyword} {JOB_LOCATIONS[0]}"],
+                "urls": [f"https://www.linkedin.com/jobs/search/?keywords={encoded}&location={JOB_LOCATIONS[0]}&f_TPR=r604800"],
                 "resultsPerPage": 10,
                 "proxy": {"useApifyProxy": True},
             }
