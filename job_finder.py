@@ -81,7 +81,7 @@ def scrape_linkedin() -> list[dict]:
                 "resultsPerPage": 10,
                 "proxy": {"useApifyProxy": True},
             }
-            items = _apify_run_and_wait("curious_coder/linkedin-jobs-scraper", run_input)
+            items = _apify_run_and_wait("bebity/linkedin-jobs-scraper", run_input)
             for item in items:
                 jobs.append({
                     "title":       item.get("title", ""),
@@ -109,10 +109,13 @@ def scrape_naukri() -> list[dict]:
     """
     jobs = []
     headers = {
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36",
-        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.naukri.com/",
+        "Origin": "https://www.naukri.com",
         "appid": "109",
-        "systemid": "109",
+        "systemid": "Naukri",
     }
     for keyword in JOB_SEARCH_KEYWORDS[:3]:
         try:
@@ -120,7 +123,7 @@ def scrape_naukri() -> list[dict]:
                 "https://www.naukri.com/jobapi/v3/search"
                 f"?noOfResults=15&urlType=search_by_key_loc"
                 f"&searchType=adv&keyword={requests.utils.quote(keyword)}"
-                f"&location=pune&experience=4&pageNo=1&seoKey=data-engineer-jobs-in-pune"
+                f"&location=pune&experience=4&pageNo=1"
             )
             resp = requests.get(url, headers=headers, timeout=20)
             if resp.status_code != 200:
@@ -150,15 +153,16 @@ def scrape_naukri() -> list[dict]:
 def scrape_instahyre() -> list[dict]:
     jobs = []
     headers = {
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36",
-        "Accept": "application/json",
-        "X-Requested-With": "XMLHttpRequest",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.instahyre.com/",
     }
     for keyword in JOB_SEARCH_KEYWORDS[:2]:
         try:
             url = (
                 f"https://www.instahyre.com/api/v1/opportunity/"
-                f"?format=json&search={requests.utils.quote(keyword)}&location=Pune&limit=15"
+                f"?format=json&designation={requests.utils.quote(keyword)}&location=Pune&limit=15"
             )
             resp = requests.get(url, headers=headers, timeout=20)
             if resp.status_code != 200:
