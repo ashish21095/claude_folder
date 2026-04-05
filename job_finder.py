@@ -54,8 +54,9 @@ def scrape_linkedin() -> list[dict]:
                 "queries": [f"{keyword} {JOB_LOCATIONS[0]}"],
                 "resultsPerPage": 10,
                 "proxy": {"useApifyProxy": True},
+                "maxResults": 10,
             }
-            items = _apify_run_and_wait("bebity~linkedin-jobs-scraper", run_input)
+            items = _apify_run_and_wait("apify~linkedin-jobs-scraper", run_input)
             for item in items:
                 jobs.append({
                     "title":       item.get("title", ""),
