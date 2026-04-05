@@ -105,7 +105,7 @@ def send_job_notification(job: dict, tailored_resume: str, fit_score: int):
         f"🎯 Experience: {_h(job.get('experience', ''))}\n"
         f"{score_bar} Fit score: <b>{fit_score}/100</b>\n"
         f"📅 Posted: {_h(job.get('posted_at', ''))}\n"
-        f"🔗 <a href=\"{job.get('url', '')}\">Apply here</a>\n\n"
+        f"🔗 <a href=\"{job.get('url', '').replace('&', '&amp;')}\">Apply here</a>\n\n"
         f"<i>Source: {job.get('source','').upper()}</i>"
     )
 

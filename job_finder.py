@@ -70,14 +70,14 @@ def scrape_linkedin() -> list[dict]:
             items = _apify_run_and_wait("curious_coder~linkedin-jobs-scraper", run_input)
             for item in items:
                 jobs.append({
-                    "title":       item.get("title", "") or item.get("job_title", ""),
-                    "company":     item.get("companyName", "") or item.get("company_name", ""),
+                    "title":       item.get("title", ""),
+                    "company":     item.get("companyName", ""),
                     "location":    item.get("location", ""),
-                    "url":         item.get("jobUrl", "") or item.get("job_url", ""),
-                    "description": item.get("description", "") or item.get("job_description", ""),
-                    "experience":  item.get("experienceLevel", "") or item.get("seniority_level", ""),
-                    "salary":      item.get("salary", "") or item.get("salary_range", ""),
-                    "posted_at":   item.get("postedAt", "") or item.get("time_posted", ""),
+                    "url":         item.get("link", ""),
+                    "description": item.get("descriptionText", ""),
+                    "experience":  item.get("seniorityLevel", ""),
+                    "salary":      item.get("salary", ""),
+                    "posted_at":   item.get("postedAt", ""),
                     "source":      "linkedin",
                 })
             logger.info(f"LinkedIn: {len(items)} jobs for '{keyword}'")
