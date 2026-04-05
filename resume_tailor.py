@@ -38,8 +38,13 @@ Rules:
 3. Reorder bullet points so the most relevant experience appears first.
 4. Adjust the Summary section to speak directly to this role and company.
 5. Keep it to one page worth of content (under 600 words total).
-6. Output ONLY the resume text — no commentary, no markdown headers, no preamble.
-7. Use plain text formatting (no asterisks, no hashes). Use ALL CAPS for section headers."""
+6. Output ONLY the resume text — no commentary, no preamble.
+7. Use this exact formatting:
+   - Section headers in ALL CAPS followed by a line of dashes (e.g. SKILLS\n-------)
+   - Bullet points using "• " (bullet + space)
+   - Blank line between each section
+   - Job titles in UPPERCASE, company and dates on the same line separated by " | "
+   - No asterisks, no hashes, no markdown"""
 
     user_prompt = f"""Here is the job description:
 ---

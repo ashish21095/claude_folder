@@ -95,19 +95,20 @@ def send_job_notification(job: dict, tailored_resume: str, fit_score: int):
     emoji = _source_emoji(job.get("source", ""))
     score_bar = "🟢" if fit_score >= 75 else "🟡" if fit_score >= 50 else "🔴"
 
-    # ── Message 1: Job card ──
-    card = f"""{emoji} *{_esc(job['title'])}*
-🏢 {_esc(job.get('company', 'Unknown'))}
-📍 {_esc(job.get('location', ''))}
-💰 {_esc(job.get('salary', 'Not mentioned'))}
-🎯 Experience: {_esc(job.get('experience', ''))}
-{score_bar} Fit score: *{fit_score}/100*
-📅 Posted: {_esc(job.get('posted_at', ''))}
-🔗 [Apply here]({job.get('url', '')})
+    # ── Message 1: Job card (HTML parse mode — handles URLs reliably) ──
+    card = (
+        f"{emoji} <b>{_h(job['title'])}</b>\n"
+        f"🏢 {_h(job.get('company', 'Unknown'))}\n"
+        f"📍 {_h(job.get('location', ''))}\n"
+        f"💰 {_h(job.get('salary', 'Not mentioned'))}\n"
+        f"🎯 Experience: {_h(job.get('experience', ''))}\n"
+        f"{score_bar} Fit score: <b>{fit_score}/100</b>\n"
+        f"📅 Posted: {_h(job.get('posted_at', ''))}\n"
+        f"🔗 <a href=\"{job.get('url', '')}\">Apply here</a>\n\n"
+        f"<i>Source: {job.get('source','').upper()}</i>"
+    )
 
-_Source: {job.get('source','').upper()}_"""
-
-    _send_message(card, parse_mode="MarkdownV2")
+    _send_message(card, parse_mode="HTML")
 
     # ── Message 2: Tailored resume as document ──
     resume_bytes = tailored_resume.encode("utf-8")
@@ -115,11 +116,9 @@ _Source: {job.get('source','').upper()}_"""
     _send_document(resume_bytes, filename, caption="📄 Tailored resume for this role")
 
 
-def _esc(text: str) -> str:
-    """Escape special chars for Telegram MarkdownV2."""
-    for ch in r"\_*[]()~`>#+-=|{}.!":
-        text = text.replace(ch, f"\\{ch}")
-    return text
+def _h(text: str) -> str:
+    """Escape special chars for Telegram HTML parse mode."""
+    return str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
 def _safe_filename(text: str) -> str:
