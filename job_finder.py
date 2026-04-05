@@ -69,15 +69,19 @@ def scrape_linkedin() -> list[dict]:
             }
             items = _apify_run_and_wait("worldunboxer~rapid-linkedin-scraper", run_input)
             for item in items:
+                title = item.get("job_title", "")
+                # Skip jobs that don't match keyword
+                if keyword.split()[0].lower() not in title.lower():
+                    continue
                 jobs.append({
-                    "title":       item.get("title", ""),
-                    "company":     item.get("companyName", ""),
+                    "title":       title,
+                    "company":     item.get("company_name", ""),
                     "location":    item.get("location", ""),
-                    "url":         item.get("jobUrl", ""),
-                    "description": item.get("description", ""),
-                    "experience":  item.get("experienceLevel", ""),
-                    "salary":      item.get("salary", ""),
-                    "posted_at":   item.get("postedAt", ""),
+                    "url":         item.get("job_url", ""),
+                    "description": item.get("job_description", ""),
+                    "experience":  item.get("seniority_level", ""),
+                    "salary":      item.get("salary_range", ""),
+                    "posted_at":   item.get("time_posted", ""),
                     "source":      "linkedin",
                 })
             logger.info(f"LinkedIn: {len(items)} jobs for '{keyword}'")
