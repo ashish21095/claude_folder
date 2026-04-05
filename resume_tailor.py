@@ -18,6 +18,11 @@ def tailor_resume(job: dict) -> str:
     Given a job dict (title, company, description, experience, location),
     return a tailored version of BASE_RESUME optimised for this JD.
     """
+    desc = job.get('description', '')
+    logger.info(f"JD description length for {job.get('title')} @ {job.get('company')}: {len(desc)} chars")
+    if len(desc) < 100:
+        logger.warning(f"Short/empty description — resume may not be well-tailored. Preview: {repr(desc[:200])}")
+
     jd_text = f"""
 Job Title: {job.get('title', '')}
 Company:   {job.get('company', '')}
@@ -26,7 +31,7 @@ Experience:{job.get('experience', '')}
 Salary:    {job.get('salary', '')}
 
 Job Description:
-{job.get('description', '')[:3000]}
+{desc[:3000]}
 """.strip()
 
     system_prompt = """You are an expert technical resume writer specialising in Data Engineering roles.
