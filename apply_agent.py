@@ -13,6 +13,7 @@ from config import (
     SUPABASE_URL, SUPABASE_ANON_KEY,
     TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 )
+from pdf_builder import build_resume_pdf
 
 logger = logging.getLogger(__name__)
 
@@ -110,10 +111,15 @@ def send_job_notification(job: dict, tailored_resume: str, fit_score: int):
 
     _send_message(card, parse_mode="HTML")
 
-    # ── Message 2: Tailored resume as document ──
-    resume_bytes = tailored_resume.encode("utf-8")
-    filename = f"Resume_{_safe_filename(job['company'])}_{_safe_filename(job['title'])}.txt"
-    _send_document(resume_bytes, filename, caption="📄 Tailored resume for this role")
+    # ── Message 2: Tailored resume as PDF ──
+    try:
+        pdf_bytes = build_resume_pdf(tailored_resume)
+        filename = f"Resume_{_safe_filename(job['company'])}_{_safe_filename(job['title'])}.pdf"
+        _send_document(pdf_bytes, filename, "application/pdf", caption="📄 Tailored resume — ATS optimised")
+    except Exception as e:
+        logger.error(f"PDF generation failed, sending plain text fallback: {e}")
+        filename = f"Resume_{_safe_filename(job['company'])}_{_safe_filename(job['title'])}.txt"
+        _send_document(tailored_resume.encode("utf-8"), filename, "text/plain", caption="📄 Tailored resume for this role")
 
 
 def _h(text: str) -> str:
@@ -136,11 +142,11 @@ def _send_message(text: str, parse_mode: str = "MarkdownV2"):
         logger.error(f"Telegram sendMessage failed: {resp.text}")
 
 
-def _send_document(data: bytes, filename: str, caption: str = ""):
+def _send_document(data: bytes, filename: str, mime: str = "application/octet-stream", caption: str = ""):
     resp = requests.post(
         f"{TELEGRAM_URL}/sendDocument",
         data={"chat_id": TELEGRAM_CHAT_ID, "caption": caption},
-        files={"document": (filename, data, "text/plain")},
+        files={"document": (filename, data, mime)},
         timeout=20,
     )
     if not resp.ok:
