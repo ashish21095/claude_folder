@@ -63,16 +63,16 @@ def scrape_linkedin() -> list[dict]:
         try:
             run_input = {
                 "keyword": keyword,
+                "keywords": keyword,
+                "searchKeywords": keyword,
+                "query": keyword,
+                "title": keyword,
                 "location": JOB_LOCATIONS[0],
                 "maxResults": 15,
-                "proxy": {"useApifyProxy": True},
             }
             items = _apify_run_and_wait("worldunboxer~rapid-linkedin-scraper", run_input)
             for item in items:
                 title = item.get("job_title", "")
-                # Skip jobs that don't match keyword
-                if keyword.split()[0].lower() not in title.lower():
-                    continue
                 jobs.append({
                     "title":       title,
                     "company":     item.get("company_name", ""),
