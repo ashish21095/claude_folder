@@ -51,10 +51,10 @@ def scrape_linkedin() -> list[dict]:
     for keyword in JOB_SEARCH_KEYWORDS[:3]:  # limit to avoid Apify free quota drain
         try:
             run_input = {
-                "queries": [f"{keyword} {JOB_LOCATIONS[0]}"],
-                "resultsPerPage": 10,
+                "keyword": keyword,
+                "location": JOB_LOCATIONS[0],
+                "maxResults": 15,
                 "proxy": {"useApifyProxy": True},
-                "maxResults": 10,
             }
             items = _apify_run_and_wait("worldunboxer~rapid-linkedin-scraper", run_input)
             for item in items:
